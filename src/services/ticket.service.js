@@ -76,6 +76,10 @@ class TicketService {
     try {
       const user = await userRepository.getById(userId); // Obtener datos del usuario si req.user no tiene todo el objeto
       
+      // if(user){
+      //   // Asignamos el usuario consultado al ticket para que el Output DTO tenga first_name y last_name
+      //   newTicket.user = user;
+    
       if (user && user.email) {
         sendTicketConfirmationEmail({
           to: user.email,
@@ -87,6 +91,7 @@ class TicketService {
           quantity: newTicket.quantity
         });
       }
+        // }
     } catch (mailErr) {
       console.error('[TicketService] Error al intentar enviar email de confirmación:', mailErr.message);
     }
@@ -106,9 +111,18 @@ class TicketService {
     if (ticket.status === 'cancelled') {
       throw new CustomError('El ticket ya se encuentra cancelado', 400);
     }
-
+// Extraer ID del comprador del ticket de forma segura (objeto populado u ObjectId/string)
+  const ticketUserId = ticket.user?._id
+    ? ticket.user._id.toString()
+    : ticket.user?.toString(); 
+    
     // 3. Validar pertenencia o rol admin (El dueño o Admin pueden cancelar)
-    const isOwner = ticket.user.toString() === user.id.toString();
+  //  const isOwner = ticket.user.toString() === user.id.toString();
+  // Normalizar ID del usuario autenticado
+  const currentUserId = user._id ? user._id.toString() : user.id.toString();
+
+  // 3. Permisos: Puede cancelar si es el dueño del ticket, el organizador del evento o un Admin
+  const isOwner = ticketUserId === currentUserId;
     const isAdmin = user.role === 'admin';
 
     if (!isOwner && !isAdmin) {

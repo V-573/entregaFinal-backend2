@@ -3,15 +3,21 @@ import mongoose from 'mongoose';
 
 class TicketDAO {
   async create(ticketData) {
-    // return await ticketModel.create(ticketData);
-const newTicket = await ticketModel.create(ticketData);
-  return newTicket.toObject(); // Convierte de Mongoose Document a POJO
-
-
+    const newTicket = await ticketModel.create(ticketData);
+    // Poblamos user y event para que el DTO tenga los datos completos desde la creación
+    const populatedTicket = await ticketModel.findById(newTicket._id)
+      .populate({ path: 'user', select: 'first_name last_name email' })
+      .populate({ path: 'event', select: 'title date location time price status' })
+      .lean();
+      
+    return populatedTicket;
   }
 
   async getById(id) {
-    return await ticketModel.findById(id);
+    return await ticketModel.findById(id)
+      .populate({ path: 'user', select: 'first_name last_name email' })
+      .populate({ path: 'event', select: 'title date location time price status organizer' })
+      .lean();
   }
 
   async findActiveByUserAndEvent(userId, eventId) {
@@ -22,15 +28,14 @@ const newTicket = await ticketModel.create(ticketData);
     });
   }
 
-   // Cuenta la suma total de 'quantity' en tickets activos (confirmed y pending)
+  // Cuenta la suma total de 'quantity' en tickets activos (confirmed y pending)
   async countOccupiedSlots(eventId) {
-    // 2. Convertir eventId a ObjectId explícitamente
     const objectId = typeof eventId === 'string' ? new mongoose.Types.ObjectId(eventId) : eventId;
 
     const result = await ticketModel.aggregate([
       {
         $match: {
-          event: objectId, // 3. Usar el ObjectId convertido
+          event: objectId,
           status: { $in: ['confirmed', 'pending'] }
         }
       },
@@ -51,6 +56,7 @@ const newTicket = await ticketModel.create(ticketData);
         path: 'event',
         select: 'title date location time price status'
       })
+      .populate({ path: 'user', select: 'first_name last_name email' }) // 👈 Agregado para que no salga fullName vacío
       .lean();
   }
 
@@ -60,12 +66,11 @@ const newTicket = await ticketModel.create(ticketData);
         path: 'user',
         select: 'first_name last_name email'
       })
+      .populate({ path: 'event', select: 'title date location time price status' }) // 👈 Opcional: para incluir datos del evento
       .lean();
   }
 
   async cancelTicket(ticketId) {
-
-
     return await ticketModel.findByIdAndUpdate(
       ticketId,
       {
@@ -73,7 +78,10 @@ const newTicket = await ticketModel.create(ticketData);
         cancelledAt: new Date()
       },
       { new: true }
-    ).lean();// Retorna un POJO
+    )
+    .populate({ path: 'user', select: 'first_name last_name email' }) // 👈 Agregado para que retorne el usuario poblado al cancelar
+    .populate({ path: 'event', select: 'title date location time price status' }) // 👈 Agregado para que el evento también esté poblado
+    .lean();
   }
 }
 

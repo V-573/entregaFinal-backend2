@@ -20,6 +20,7 @@ async getAllEvents({ filter = {}, options = {} }) {
 
   const [data, total] = await Promise.all([
     eventModel.find(filter)
+    .populate('organizer', 'first_name last_name firstName lastName name email') // Popular datos del organizador
       .sort(sort)
       .skip(skip)
       .limit(limit)

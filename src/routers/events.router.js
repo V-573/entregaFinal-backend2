@@ -46,12 +46,6 @@ router.delete(
   cancelEvent
 );
 
-// Inscribirse a un evento -> Solo usuarios con rol 'user'
-// router.post(
-//   '/:eventId/register', 
-//   passportCall('jwt'), 
-//   authorization(['user']), 
-//   registerToEvent
-// );
+
 
 export default router;

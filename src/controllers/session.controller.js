@@ -68,6 +68,8 @@ export const login = async (req, res, next) => {
 // GET /api/sessions/current
 export const getCurrentUser = async (req, res, next) => {
   try {
+
+   
 // req.user es asignado automáticamente por passportCall('jwt')
     res.status(200).json({
       status: "success",
