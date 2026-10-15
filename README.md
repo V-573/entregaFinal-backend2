@@ -160,7 +160,8 @@ src/
 ## Funcionalidad desde Postman de endpoints para sesiones & usuarios
 
 POST http://localhost:8080/api/sessions/register
-Body
+
+
 ```json {
  "first_name": "Epicuro",
   "last_name": "De Samos",
@@ -841,7 +842,7 @@ Respuesta 200 OK
    ```
 
 3. **Configurar variables de entorno (`.env`):**
-   ```env
+```bash
 PORT=8080
 NODE_ENV= development
 MONGODB_USERNAME="user"
@@ -849,14 +850,12 @@ MONGODB_PASSWORD="password"
 MONGODB_URI=mongodb+srv://<usuario>:<password>@cluster.mongodb.net/<dbname>
 JWT_SECRET=tu_clave_secreta_jwt
 JWT_EXPIRES_IN="24h"
-
 MAIL_HOST=smtp.gmail.com
 MAIL_PORT=587
 MAIL_USER=Usuario del correo a usar
 MAIL_PASS= clave para app
 MAIL_FROM="Eventos App <email a utilizar>"
-
-   ```
+```
 
 4. **Ejecutar el proyecto:**
    ```bash
